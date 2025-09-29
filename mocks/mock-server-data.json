@@ -1,0 +1,58 @@
+{
+    "api": {
+        "titles": [
+            "Отель 5 звёзд Арарат",
+            "Квартира с детьми",
+            "Пентхаус с камином",
+            "Дом с банькой",
+            "Студия 2кв.м без туалета",
+            "Апартаменты с хорошими соседями"
+        ],
+        "descriptions": [
+            "В подарок с заселением 5 звёзд бутылка Арарата",
+            "Дети в подарок при Аренде больше 2 суток",
+            "Камин не разжигать после 00:00 по пожарной безопасности",
+            "Баню не топить, много дров ест",
+            "Вместо туалета одноразовое ведро",
+            "Соседю любят, когда шумят, в тишине не сидеть"
+        ],
+        "cities": ["Paris", "Cologne", "Brussels", "Amsterdam", "Hamburg", "Dusseldorf"],
+        "images": [
+            "photo1.jpg",
+            "photo2.jpg",
+            "photo3.jpg",
+            "photo4.jpg",
+            "photo5.jpg",
+            "photo6.jpg",
+            "photo7.jpg",
+            "photo8.jpg"
+        ],
+        "types": ["apartment", "house", "room", "hotel"],
+        "amenities": [
+            "Breakfast",
+            "Air conditioning",
+            "Laptop friendly workspace",
+            "Baby seat",
+            "Washer",
+            "Towels",
+            "Fridge"
+        ],
+        "emails": [
+            "superpuper@gmail.com",
+            "afgdhs@outlook.com",
+            "krutoiperec@mail.ru",
+            "useruser@rambler.com",
+            "pc-enjoer@example.com"
+        ],
+        "locations": [
+          {"latitude": 48.85861, "longitude": 2.350499},
+          {"latitude": 50.940361, "longitude": 6.958974},
+          {"latitude": 50.848557, "longitude": 4.350697},
+          {"latitude": 52.372216, "longitude": 4.894168},
+          {"latitude": 53.552341, "longitude": 9.999654},
+          {"latitude": 51.227402, "longitude": 6.775314},
+          {"latitude": 48.85861, "longitude": 2.350499},
+          {"latitude": 52.372216, "longitude": 4.894168}
+        ]
+    }
+}
