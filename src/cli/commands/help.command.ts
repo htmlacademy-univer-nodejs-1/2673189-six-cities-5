@@ -13,5 +13,6 @@ export class HelpCommand implements Command {
     console.info(chalk.cyan('   --version:') + chalk.white('                   # выводит номер версии'));
     console.info(chalk.cyan('   --help:') + chalk.white('                      # печатает этот текст'));
     console.info(chalk.cyan('   --import <path>:') + chalk.white('             # импортирует данные из TSV'));
+    console.info(chalk.cyan('    --generate <n> <path> <url>:') + chalk.white(' # генерирует n тестовых предложений и сохраняет по указанному пути'));
   }
 }
