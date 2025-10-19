@@ -37,6 +37,16 @@
             "Towels",
             "Fridge"
         ],
+        "userNames": [
+            "Max",
+            "Angelina",
+            "Igor",
+            "Anna",
+            "Dmitry",
+            "Elena",
+            "Sergey",
+            "Maria"
+        ],
         "emails": [
             "superpuper@gmail.com",
             "afgdhs@outlook.com",
@@ -44,15 +54,22 @@
             "useruser@rambler.com",
             "pc-enjoer@example.com"
         ],
+        "passwords": [
+            "password123",
+            "secret456",
+            "mypass789",
+            "admin123",
+            "userpass"
+        ],
         "locations": [
-          {"latitude": 48.85861, "longitude": 2.350499},
-          {"latitude": 50.940361, "longitude": 6.958974},
-          {"latitude": 50.848557, "longitude": 4.350697},
-          {"latitude": 52.372216, "longitude": 4.894168},
-          {"latitude": 53.552341, "longitude": 9.999654},
-          {"latitude": 51.227402, "longitude": 6.775314},
-          {"latitude": 48.85861, "longitude": 2.350499},
-          {"latitude": 52.372216, "longitude": 4.894168}
+            {"latitude": 48.85861, "longitude": 2.350499},
+            {"latitude": 50.940361, "longitude": 6.958974},
+            {"latitude": 50.848557, "longitude": 4.350697},
+            {"latitude": 52.372216, "longitude": 4.894168},
+            {"latitude": 53.552341, "longitude": 9.999654},
+            {"latitude": 51.227402, "longitude": 6.775314},
+            {"latitude": 48.85861, "longitude": 2.350499},
+            {"latitude": 52.372216, "longitude": 4.894168}
         ]
     }
 }

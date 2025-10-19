@@ -1,6 +1,7 @@
 import dayjs from 'dayjs';
 import { OfferGenerator } from './offer-generator.interface.js';
 import { Location, MockServerData } from '../../types/index.js';
+
 import {
   generateRandomBoolean,
   generateRandomValue,
@@ -19,7 +20,8 @@ import {
   MIN_COMMENTS,
   MAX_COMMENTS,
   FIRST_WEEK_DAY,
-  LAST_WEEK_DAY
+  LAST_WEEK_DAY,
+  USER_TYPES
 } from '../../const/offer.const.js';
 
 export class TSVOfferGenerator implements OfferGenerator {
@@ -43,7 +45,10 @@ export class TSVOfferGenerator implements OfferGenerator {
     const peopleCnt = generateRandomValue(MIN_PEOPLECNT, MAX_PEOPLECNT).toString();
     const price = generateRandomValue(MIN_PRICE, MAX_PRICE).toString();
     const amenities = getRandomItems(this.mockData.amenities).join(';');
-    const author = getRandomItem<string>(this.mockData.emails).toString();
+    const authorName = getRandomItem<string>(this.mockData.userNames);
+    const authorEmail = getRandomItem<string>(this.mockData.emails).toString();
+    const authorAvatar = getRandomItem<string>(this.mockData.images).toString();
+    const authorType = getRandomItem([...USER_TYPES]).toString();
     const commentsCnt = generateRandomValue(MIN_COMMENTS, MAX_COMMENTS).toString();
     const coordinates = getRandomItem<Location>(this.mockData.locations);
 
@@ -66,7 +71,10 @@ export class TSVOfferGenerator implements OfferGenerator {
       peopleCnt,
       price,
       amenities,
-      author,
+      authorName,
+      authorEmail,
+      authorAvatar,
+      authorType,
       commentsCnt,
       coordinates.latitude,
       coordinates.longitude

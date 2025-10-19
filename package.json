@@ -10,12 +10,14 @@
   "main": "main.js",
   "scripts": {
     "start": "npm run build && node ./dist/main.rest.js",
-    "build": "npm run clean && mkdirp dist/logs && npm run compile",
+    "build": "npm run clean && npm run compile",
     "start-dev": "npm run ",
     "lint": "eslint src/ --ext .ts",
     "compile": "tsc -p tsconfig.json",
     "clean": "rimraf dist",
-    "ts": "ts-node",
+    "ts": "ts-node --esm",
+    "cli": "npm run ts ./src/main.cli.ts --",
+    "cli:tsx": "tsx ./src/main.cli.ts",
     "mock:server": "json-server ./mocks/mock-server-data.json --port 3123"
   },
   "devDependencies": {
@@ -29,6 +31,7 @@
     "pino-pretty": "^13.1.1",
     "rimraf": "3.0.2",
     "ts-node": "10.9.1",
+    "tsx": "^4.20.6",
     "typescript": "4.9.5"
   },
   "type": "module",
@@ -37,16 +40,18 @@
     "npm": ">=8"
   },
   "dependencies": {
+    "@typegoose/typegoose": "12.20.0",
     "chalk": "5.6.2",
     "convict": "6.2.4",
     "convict-format-with-validator": "6.2.0",
     "dayjs": "1.11.18",
-    "dotenv": "^17.2.3",
-    "got": "14.4.9",
-    "inversify": "^7.10.2",
+    "dotenv": "17.2.3",
+    "got": "^12.6.1",
+    "inversify": "7.10.2",
     "json-server": "1.0.0-beta.3",
     "mkdirp": "^3.0.1",
-    "pino": "10.0.0",
+    "mongoose": "8.19.1",
+    "pino": "^10.0.0",
     "reflect-metadata": "^0.2.2"
   }
 }

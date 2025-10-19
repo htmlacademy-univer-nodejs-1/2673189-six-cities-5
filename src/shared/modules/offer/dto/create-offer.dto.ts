@@ -1,24 +1,20 @@
-import { City } from './city.type.js';
-import { HousingType } from './housing.type.js';
-import { Amenities } from './amenities.type.js';
-import { User } from './user.type.js';
+import { Amenities, City, HousingType } from '../../../types/index.js';
 
-export type Offer = {
+export class CreateOfferDto {
   title: string;
   description: string;
-  postDate: Date;
   city: City;
   previewImage: string;
   images: [string, string, string, string, string, string];
-  isPremium: boolean;
-  isFavorite: boolean;
-  rating: number;
+  isPremium?: boolean;
+  isFavorite?: boolean;
+  rating?: number;
   type: HousingType;
   roomsCnt: number;
   peopleCnt: number;
   price: number;
   amenities: Amenities[];
-  author: User;
+  author: string;
   commentsCnt: number;
   latitude: number;
   longitude: number;
