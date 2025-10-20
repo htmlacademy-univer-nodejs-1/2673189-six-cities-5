@@ -1,0 +1,597 @@
+openapi: 3.1.0
+info:
+  title: API сервер для проекта «6 городов».
+  description: |-
+    * Список ресурсов и маршрутов сервера «6 городов».
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  version: 2.0.0
+tags:
+  - name: offers
+    description: Объявления
+  - name: comments
+    description: Комментарии
+  - name: users
+    description: Пользователи
+  - name: favorites
+    description: Избранными предложения
+
+paths:
+  /offers:
+    get:
+      summary: Получение списка предложений по аренде
+      tags:
+        - Offers
+      responses:
+        '200':
+          description: Список предложений по аренде получен
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OfferShort'
+
+    post:
+      summary: Создание нового предложения
+      tags:
+        - Offers
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOfferRequest'
+      responses:
+        '201':
+          description: Предложение создано
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Offer'
+
+  /offers/{offerId}:
+    get:
+      summary: Получение детальной информации о предложении
+      tags:
+        - Offers
+      parameters:
+        - name: offerId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Получена детальная информация о предложении
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Offer'
+        '404':
+          description:  Предложение не найдено
+
+    put:
+      summary: Редактирование предложения
+      tags:
+        - Offers
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: offerId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateOfferRequest'
+      responses:
+        '200':
+          description: Предложение обновлено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Offer'
+
+    delete:
+      summary: Удаление предложения
+      tags:
+        - Offers
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: offerId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Предложение удалено
+
+  # Комментарии
+  /offers/{offerId}/comments:
+    get:
+      summary: Получение списка комментариев для предложения
+      tags:
+        - Comments
+      parameters:
+        - name: offerId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Получен список комментариев для предложения
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Comment'
+        '404':
+          description:  Предложение не найдено
+
+
+    post:
+      summary: Добавление комментария для предложения
+      tags:
+        - Comments
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: offerId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCommentRequest'
+      responses:
+        '201':
+          description: Комментарий добавлен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+
+  # Пользователи
+  /users:
+    post:
+      summary: Создание нового пользователя
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserRequest'
+      responses:
+        '201':
+          description: Пользователь создан
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+  /users/login:
+    post:
+      summary: Авторизация пользователя
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Успешный вход
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '401':
+          description: Неверный логин или пароль
+
+  /users/logout:
+    post:
+      summary: Выход из системы
+      tags:
+        - Users
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: Успешный выход
+
+  /users/status:
+    get:
+      summary: Проверка состояния пользователя
+      tags:
+        - Users
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Статус пользователя
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserStatus'
+
+  # Премиальные предложения
+  /offers/premium:
+    get:
+      summary: Получение списка премиальных предложений для города
+      tags:
+        - Offers
+      parameters:
+        - name: city
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Получен список премиальных предложений для города
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OfferShort'
+
+  # Избранное
+  /favorites:
+    get:
+      summary: Получения списка предложений, добавленных в избранное
+      tags:
+        - Favorites
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Получен список предложений, добавленных в избранное
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OfferShort'
+
+  /favorites/{offerId}:
+    post:
+      summary: Добавление предложения в избранное
+      tags:
+        - Favorites
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: offerId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '201':
+          description: Добавлено предложение в избранное
+        '404':
+          description:  Предложение не найдено
+
+    delete:
+      summary: Удаление предложения из избранного
+      tags:
+        - Favorites
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: offerId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Удалено предложение из избранного
+        '404':
+          description:  Предложение не найдено
+
+
+components:
+  schemas:
+    Offer:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        city:
+          type: string
+        previewImage:
+          type: string
+        images:
+          type: array
+          items:
+            type: string
+        isPremium:
+          type: boolean
+        isFavorite:
+          type: boolean
+        rating:
+          type: number
+        type:
+          type: string
+        roomsCnt:
+          type: integer
+        peopleCnt:
+          type: integer
+        price:
+          type: integer
+        amenities:
+          type: array
+          items:
+            type: string
+        host:
+          $ref: '#/components/schemas/User'
+        latitude:
+          type: number
+        longitude:
+          type: number
+        author:
+          $ref: '#/components/schemas/User'
+
+
+    OfferShort:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        city:
+          type: string
+        previewImage:
+          type: string
+        isPremium:
+          type: boolean
+        isFavorite:
+          type: boolean
+        rating:
+          type: number
+        type:
+          type: string
+        price:
+          type: integer
+        author:
+          $ref: '#/components/schemas/User'
+
+    CreateOfferRequest:
+      type: object
+      required:
+        - title
+        - description
+        - city
+        - previewImage
+        - images
+        - isPremium
+        - type
+        - roomsCnt
+        - peopleCnt
+        - price
+        - amenities
+        - latitude
+        - longitude
+      properties:
+        title:
+          type: string
+          minLength: 10
+          maxLength: 100
+        description:
+          type: string
+          minLength: 20
+          maxLength: 1024
+        city:
+          type: string
+        previewImage:
+          type: string
+        images:
+          type: array
+          items:
+            type: string
+          minItems: 6
+          maxItems: 6
+        isPremium:
+          type: boolean
+        type:
+          type: string
+          enum: [apartment, house, room, hotel]
+        roomsCnt:
+          type: integer
+          minimum: 1
+          maximum: 8
+        peopleCnt:
+          type: integer
+          minimum: 1
+          maximum: 10
+        price:
+          type: integer
+          minimum: 100
+          maximum: 100000
+        amenities:
+          type: array
+          items:
+            type: string
+        latitude:
+          type: number
+        longitude:
+          type: number
+        author:
+          $ref: '#/components/schemas/User'
+
+    UpdateOfferRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 10
+          maxLength: 100
+        description:
+          type: string
+          minLength: 20
+          maxLength: 1024
+        city:
+          type: string
+        previewImage:
+          type: string
+        images:
+          type: array
+          items:
+            type: string
+          minItems: 6
+          maxItems: 6
+        isPremium:
+          type: boolean
+        type:
+          type: string
+          enum: [apartment, house, room, hotel]
+        roomsCnt:
+          type: integer
+          minimum: 1
+          maximum: 8
+        peopleCnt:
+          type: integer
+          minimum: 1
+          maximum: 10
+        price:
+          type: integer
+          minimum: 100
+          maximum: 100000
+        amenities:
+          type: array
+          items:
+            type: string
+        latitude:
+          type: number
+        longitude:
+          type: number
+
+    Comment:
+      type: object
+      properties:
+        id:
+          type: integer
+        comment:
+          type: string
+        date:
+          type: string
+          format: date-time
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        user:
+          $ref: '#/components/schemas/User'
+
+    CreateCommentRequest:
+      type: object
+      required:
+        - comment
+        - rating
+      properties:
+        comment:
+          type: string
+          minLength: 5
+          maxLength: 1024
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        avatarPicPath:
+          type: string
+        userType:
+          type: boolean
+
+    CreateUserRequest:
+      type: object
+      required:
+        - name
+        - email
+        - password
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 15
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 6
+          maxLength: 12
+        avatarPicPath:
+          type: string
+        userType:
+          type: boolean
+
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+
+    LoginResponse:
+      type: object
+      properties:
+        token:
+          type: string
+        user:
+          $ref: '#/components/schemas/User'
+
+    UserStatus:
+      type: object
+      properties:
+        isAuthenticated:
+          type: boolean
+        user:
+          $ref: '#/components/schemas/User'
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
