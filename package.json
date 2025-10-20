@@ -15,22 +15,22 @@
     "lint": "eslint src/ --ext .ts",
     "compile": "tsc -p tsconfig.json",
     "clean": "rimraf dist",
-    "ts": "tsx",
-    "cli": "npm run ts ./src/main.cli.ts --",
+    "ts": "ts-node",
+    "generate": "npm run build && node ./dist/main.cli.js --generate 10 ./mocks/generated-offers.tsv http://localhost:3123/api",
+    "import:db": "node ./dist/main.cli.js --import ./mocks/generated-offers.tsv admin admin 127.0.0.1 six-cities secret_salt",
     "mock:server": "json-server ./mocks/mock-server-data.json --port 3123"
   },
   "devDependencies": {
-    "@types/convict": "^6.1.6",
-    "@types/convict-format-with-validator": "^6.0.5",
+    "@types/convict": "6.1.6",
+    "@types/convict-format-with-validator": "6.0.5",
     "@types/node": "18.16.3",
     "@typescript-eslint/eslint-plugin": "5.46.0",
     "@typescript-eslint/parser": "5.46.0",
     "eslint": "8.39.0",
     "eslint-config-htmlacademy": "9.1.1",
-    "pino-pretty": "^13.1.1",
+    "pino-pretty": "13.1.1",
     "rimraf": "3.0.2",
     "ts-node": "10.9.1",
-    "tsx": "^4.20.6",
     "typescript": "4.9.5"
   },
   "type": "module",
@@ -39,18 +39,18 @@
     "npm": ">=8"
   },
   "dependencies": {
-    "@typegoose/typegoose": "12.20.0",
+    "@typegoose/typegoose": "11.5.0",
     "chalk": "5.6.2",
     "convict": "6.2.4",
     "convict-format-with-validator": "6.2.0",
     "dayjs": "1.11.18",
     "dotenv": "17.2.3",
-    "got": "^12.6.1",
+    "got": "12.6.1",
     "inversify": "7.10.2",
     "json-server": "1.0.0-beta.3",
-    "mkdirp": "^3.0.1",
-    "mongoose": "8.19.1",
-    "pino": "^10.0.0",
-    "reflect-metadata": "^0.2.2"
+    "mkdirp": "3.0.1",
+    "mongoose": "7.5.3",
+    "pino": "10.0.0",
+    "reflect-metadata": "0.2.2"
   }
 }

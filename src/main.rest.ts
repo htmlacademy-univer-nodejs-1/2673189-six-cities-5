@@ -8,13 +8,16 @@ import { offerContainer } from './shared/modules/offer/index.js';
 
 
 async function bootstrap() {
-  const appContainer = Container.merge(
+  const appContainer = new Container();
+
+  appContainer.load(
     restApplicationContainer,
     userContainer,
-    offerContainer,
+    offerContainer
   );
   const application = appContainer.get<RestApplication>(Component.RestApplication);
   await application.init();
 }
+
 
 await bootstrap();
