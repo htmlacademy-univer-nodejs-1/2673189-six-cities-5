@@ -1,6 +1,7 @@
 import { City } from './city.type.js';
 import { HousingType } from './housing.type.js';
 import { Amenities } from './amenities.type.js';
+import { User } from './user.type.js';
 
 export type Offer = {
   title: string;
@@ -17,7 +18,7 @@ export type Offer = {
   peopleCnt: number;
   price: number;
   amenities: Amenities[];
-  author: string;
+  author: User;
   commentsCnt: number;
   latitude: number;
   longitude: number;

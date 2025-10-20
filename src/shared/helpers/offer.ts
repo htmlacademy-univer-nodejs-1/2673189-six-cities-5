@@ -1,4 +1,4 @@
-import {Amenities, City, HousingType, Offer} from '../types/index.js';
+import { Amenities, City, HousingType, Offer, UserType } from '../types/index.js';
 
 export function ParseOffer(data: string): Offer {
   const [
@@ -7,7 +7,7 @@ export function ParseOffer(data: string): Offer {
     postDate,
     city,
     previewImage,
-    images,
+    imagesString,
     isPremium,
     isFavorite,
     rating,
@@ -16,7 +16,10 @@ export function ParseOffer(data: string): Offer {
     peopleCnt,
     price,
     amenities,
-    author,
+    authorName,
+    authorEmail,
+    authorAvatar,
+    authorType,
     commentsCnt,
     latitude,
     longitude
@@ -28,7 +31,7 @@ export function ParseOffer(data: string): Offer {
     postDate: new Date(postDate),
     city: city as City,
     previewImage,
-    images: images.split(';'),
+    images: imagesString.split(';'),
     isPremium: isPremium === 'true',
     isFavorite: isFavorite === 'true',
     rating: parseFloat(rating),
@@ -36,8 +39,14 @@ export function ParseOffer(data: string): Offer {
     roomsCnt: parseInt(roomsCnt, 10),
     peopleCnt: parseInt(peopleCnt, 10),
     price: parseInt(price, 10),
-    amenities: amenities.split(';') as Amenities[],
-    author,
+    amenities: amenities.trim().split(';') as Amenities[],
+    author: {
+      name: authorName,
+      email: authorEmail,
+      avatarPicPath: authorAvatar,
+      password: '',
+      type: authorType as UserType
+    },
     commentsCnt: parseInt(commentsCnt, 10),
     latitude: parseFloat(latitude),
     longitude: parseFloat(longitude)

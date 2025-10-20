@@ -11,7 +11,9 @@ export class GenerateCommand implements Command {
 
   private async load(url: string) {
     try {
-      this.initialData = await got.get(url).json();
+      const response = await got.get(url).json() as unknown;
+      const maybeWrapped = response as { api?: MockServerData };
+      this.initialData = maybeWrapped.api ?? (response as MockServerData);
     } catch {
       throw new Error(`Can't load data from ${url}`);
     }

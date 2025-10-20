@@ -10,4 +10,5 @@ export const MIN_COMMENTS = 0;
 export const MAX_COMMENTS = 999;
 export const FIRST_WEEK_DAY = 1;
 export const LAST_WEEK_DAY = 7;
+export const USER_TYPES = ['обычный', 'pro'] as const;
 
