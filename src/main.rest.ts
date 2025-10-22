@@ -5,6 +5,7 @@ import { Component } from './shared/types/index.js';
 import { restApplicationContainer } from './rest/rest.container.js';
 import { userContainer } from './shared/modules/user/index.js';
 import { offerContainer } from './shared/modules/offer/index.js';
+import { commentContainer } from './shared/modules/comment/index.js';
 
 
 async function bootstrap() {
@@ -13,7 +14,8 @@ async function bootstrap() {
   appContainer.load(
     restApplicationContainer,
     userContainer,
-    offerContainer
+    offerContainer,
+    commentContainer
   );
   const application = appContainer.get<RestApplication>(Component.RestApplication);
   await application.init();
