@@ -1,9 +1,8 @@
-import { Amenities, City, HousingType } from '../../../types/index.js';
+import {Amenities, HousingType} from '../../../types';
 
-export class CreateOfferDto {
+export class UpdateOfferDto {
   title: string;
   description: string;
-  city: City;
   previewImage: string;
   images: string[];
   isPremium?: boolean;
@@ -13,8 +12,4 @@ export class CreateOfferDto {
   peopleCnt: number;
   price: number;
   amenities: Amenities[];
-  author: string;
-  commentsCnt: number;
-  latitude: number;
-  longitude: number;
 }
