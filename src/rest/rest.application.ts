@@ -47,6 +47,9 @@ export class RestApplication {
 
   private async _initMiddleware() {
     this.server.use(express.json());
+
+    const uploadDir = this.config.get('UPLOAD_DIRECTORY');
+    this.server.use('/upload', express.static(uploadDir));
   }
 
   private async _initExceptionFilters() {
