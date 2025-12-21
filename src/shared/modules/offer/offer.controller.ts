@@ -1,7 +1,7 @@
 import { inject, injectable } from 'inversify';
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
-import { BaseController, HttpError, HttpMethod } from '../../libs/rest/index.js';
+import { BaseController, HttpError, HttpMethod, ValidateDtoMiddleware, ValidateObjectIdMiddleware } from '../../libs/rest/index.js';
 import { Logger } from '../../libs/logger/index.js';
 import { City, Component } from '../../types/index.js';
 import { OfferService } from './offer-service.interface.js';
@@ -21,12 +21,12 @@ export default class OfferController extends BaseController {
     this.logger.info('Register routes for OfferController…');
 
     this.addRoute({ path: '/', method: HttpMethod.Get, handler: this.index });
-    this.addRoute({ path: '/', method: HttpMethod.Post, handler: this.create });
+    this.addRoute({ path: '/', method: HttpMethod.Post, handler: this.create, middlewares: [new ValidateDtoMiddleware(CreateOfferDto)] });
     this.addRoute({ path: '/premium/:city', method: HttpMethod.Get, handler: this.getPremium });
     this.addRoute({ path: '/favorites', method: HttpMethod.Get, handler: this.getFavorites });
-    this.addRoute({ path: '/:offerId', method: HttpMethod.Get, handler: this.show });
-    this.addRoute({ path: '/:offerId', method: HttpMethod.Patch, handler: this.update });
-    this.addRoute({ path: '/:offerId', method: HttpMethod.Delete, handler: this.delete });
+    this.addRoute({ path: '/:offerId', method: HttpMethod.Get, handler: this.show, middlewares: [new ValidateObjectIdMiddleware('offerId')] });
+    this.addRoute({ path: '/:offerId', method: HttpMethod.Patch, handler: this.update, middlewares: [new ValidateObjectIdMiddleware('offerId'), new ValidateDtoMiddleware(UpdateOfferDto)] });
+    this.addRoute({ path: '/:offerId', method: HttpMethod.Delete, handler: this.delete, middlewares: [new ValidateObjectIdMiddleware('offerId')] });
   }
 
   public async index(_req: Request, res: Response) {

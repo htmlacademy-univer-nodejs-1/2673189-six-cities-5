@@ -1,7 +1,7 @@
 import { inject, injectable } from 'inversify';
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
-import { BaseController, HttpError, HttpMethod } from '../../libs/rest/index.js';
+import { BaseController, HttpError, HttpMethod, ValidateDtoMiddleware } from '../../libs/rest/index.js';
 import { Logger } from '../../libs/logger/index.js';
 import { Component } from '../../types/index.js';
 import { UserService } from './user-service.interface.js';
@@ -20,7 +20,7 @@ export class UserController extends BaseController {
     super(logger);
     this.logger.info('Register routes for UserController…');
 
-    this.addRoute({ path: '/register', method: HttpMethod.Post, handler: this.create });
+    this.addRoute({ path: '/register', method: HttpMethod.Post, handler: this.create, middlewares: [new ValidateDtoMiddleware(CreateUserDto)] });
     this.addRoute({ path: '/login', method: HttpMethod.Post, handler: this.login });
     this.addRoute({ path: '/logout', method: HttpMethod.Post, handler: this.logout });
   }

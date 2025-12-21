@@ -1,10 +1,27 @@
 import { UserType } from '../../../types/index.js';
+import { IsEmail, IsOptional, IsString, IsEnum, MaxLength, MinLength } from 'class-validator';
+import { USER_TYPES } from '../../../const/index.js';
 
 export class CreateUserDto {
-  public name: string;
+  @IsEmail()
   public email: string;
-  public avatarPicPath?: string;
+
+  @IsString()
+  @MinLength(1)
+  @MaxLength(15)
+  public name: string;
+
+  @IsOptional()
+  @IsString()
+  public avatarUrl?: string;
+
+  @IsString()
+  @MinLength(6)
+  @MaxLength(12)
   public password: string;
-  public type: UserType;
+
+  @IsEnum(USER_TYPES)
+  @IsOptional()
+  public type!: UserType;
 }
 
