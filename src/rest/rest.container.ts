@@ -9,9 +9,12 @@ import { AppExceptionFilter, ExceptionFilter } from '../shared/libs/rest/index.j
 export const restApplicationContainer: ContainerModule = new ContainerModule(
   (options: ContainerModuleLoadOptions) => {
 
-    options.bind<RestApplication>(Component.RestApplication).toSelf().inSingletonScope();
+    options.bind(RestApplication).toSelf().inSingletonScope();
+    options.bind<RestApplication>(Component.RestApplication).toService(RestApplication);
+
     options.bind<Logger>(Component.Logger).to(PinoLogger).inSingletonScope();
     options.bind<Config<RestSchema>>(Component.Config).to(RestConfig).inSingletonScope();
     options.bind<DatabaseClient>(Component.DatabaseClient).to(MongoDatabaseClient).inSingletonScope();
     options.bind<ExceptionFilter>(Component.ExceptionFilter).to(AppExceptionFilter).inSingletonScope();
+
   });

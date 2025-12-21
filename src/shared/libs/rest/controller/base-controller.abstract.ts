@@ -23,9 +23,11 @@ export abstract class BaseController implements Controller {
   }
 
   public addRoute(route: Route) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+    const middlewares = route.middlewares?.map((mw) => mw.execute.bind(mw)) ?? [];
+
     const wrapperAsyncHandler = asyncHandler(route.handler.bind(this));
-    this._router[route.method](route.path, wrapperAsyncHandler);
+
+    this._router[route.method](route.path, ...middlewares, wrapperAsyncHandler);
     this.logger.info(`Route registered: ${route.method.toUpperCase()} ${route.path}`);
   }
 

@@ -1,0 +1,82 @@
+@baseUrl = http://localhost:4000
+@contentType = application/json
+
+### Healthcheck
+GET {{baseUrl}}/ HTTP/1.1
+
+###
+# OFFERS: ObjectId validation
+GET {{baseUrl}}/offers/ HTTP/1.1
+
+###
+# COMMENTS: ObjectId validation
+GET {{baseUrl}}/comments HTTP/1.1
+
+###
+# USERS: DTO validation
+POST {{baseUrl}}/users/register HTTP/1.1
+Content-Type: {{contentType}}
+
+{
+  "email": "not-an-email@ma.ru",
+  "name": "aa2sdsw",
+  "password": "123авыа",
+  "pro": true
+}
+
+###
+# OFFERS: DTO validation
+POST {{baseUrl}}/offers HTTP/1.1
+Content-Type: {{contentType}}
+
+{
+  "title": "short",
+  "description": "also short",
+  "city": "Paris",
+  "previewImage": "preview.jpg",
+  "images": ["1.jpg"],
+  "isPremium": true,
+  "isFavorite": false,
+  "type": "apartment",
+  "roomsCnt": 1,
+  "peopleCnt": 1,
+  "price": 100,
+  "amenities": ["Breakfast"],
+  "author": "507f1f77bcf86cd799439011",
+  "commentsCnt": 0,
+  "latitude": 48.8566,
+  "longitude": 2.3522,
+  "rating": 0
+}
+
+###
+# COMMENTS: DTO validation
+POST {{baseUrl}}/comments/507f1f77bcf86cd799439011 HTTP/1.1
+Content-Type: {{contentType}}
+
+{
+  "text": "badbadbadbadbadbadbadbadbadbadbadbadbadbadbad",
+  "rating": 5,
+  "offerId": "507f1f77bcf86cd799439011",
+  "userId": "507f1f77bcf86cd799439011"
+}
+
+###
+# COMMENTS: create + check existence
+
+@offerId = 68f52a93be83f0b6f93f58ba
+@userId = 68f52a93be83f0b6f93f58b7
+
+POST {{baseUrl}}/comments/{{offerId}} HTTP/1.1
+Content-Type: {{contentType}}
+
+{
+  "text": "Nice place, would stay again.111",
+  "rating": 3,
+  "offerId": "{{offerId}}",
+  "userId": "{{userId}}"
+}
+
+###
+# Check: list comments for offer and ensure the comment appears
+GET {{baseUrl}}/comments/{{offerId}} HTTP/1.1

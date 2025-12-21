@@ -11,7 +11,7 @@
   "scripts": {
     "start": "npm run build && node ./dist/main.rest.js",
     "build": "npm run clean && npm run compile",
-    "start-dev": "npm run ",
+    "start-dev": "npm run build && node ./dist/main.rest.js",
     "lint": "eslint src/ --ext .ts",
     "compile": "tsc -p tsconfig.json",
     "clean": "rimraf dist",
@@ -43,6 +43,7 @@
     "@typegoose/typegoose": "11.5.0",
     "chalk": "5.6.2",
     "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.3",
     "convict": "6.2.4",
     "convict-format-with-validator": "6.2.0",
     "dayjs": "1.11.18",
