@@ -1,7 +1,7 @@
 import { inject, injectable } from 'inversify';
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
-import { BaseController, HttpError, HttpMethod, ValidateDtoMiddleware } from '../../libs/rest/index.js';
+import { BaseController, HttpError, HttpMethod, ValidateDtoMiddleware, ValidateObjectIdMiddleware, DocumentExistsMiddleware, UploadFileMiddleware } from '../../libs/rest/index.js';
 import { Logger } from '../../libs/logger/index.js';
 import { Component } from '../../types/index.js';
 import { UserService } from './user-service.interface.js';
@@ -23,6 +23,17 @@ export class UserController extends BaseController {
     this.addRoute({ path: '/register', method: HttpMethod.Post, handler: this.create, middlewares: [new ValidateDtoMiddleware(CreateUserDto)] });
     this.addRoute({ path: '/login', method: HttpMethod.Post, handler: this.login });
     this.addRoute({ path: '/logout', method: HttpMethod.Post, handler: this.logout });
+
+    this.addRoute({
+      path: '/:userId/avatar',
+      method: HttpMethod.Post,
+      handler: this.uploadAvatar,
+      middlewares: [
+        new ValidateObjectIdMiddleware('userId'),
+        new DocumentExistsMiddleware(this.userService, 'userId', 'User'),
+        new UploadFileMiddleware(this.configService, 'avatar'),
+      ],
+    });
   }
 
   public async create(req: Request, res: Response): Promise<void> {
@@ -64,5 +75,23 @@ export class UserController extends BaseController {
 
   public async logout(_req: Request, res: Response): Promise<void> {
     this.noContent(res, { message: 'Logged out successfully' });
+  }
+
+  public async uploadAvatar(req: Request, res: Response): Promise<void> {
+    const { userId } = req.params;
+
+    const file = req.file as Express.Multer.File | undefined;
+    if (!file) {
+      throw new HttpError(
+        StatusCodes.BAD_REQUEST,
+        'Avatar file is required',
+        'UserController'
+      );
+    }
+
+    const avatarPicPath = `/upload/${file.filename}`;
+    const updated = await this.userService.updateAvatar(userId, avatarPicPath);
+
+    this.ok(res, fillDTO(UserRdo, updated));
   }
 }

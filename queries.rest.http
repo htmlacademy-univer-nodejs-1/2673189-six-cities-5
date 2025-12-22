@@ -80,3 +80,15 @@ Content-Type: {{contentType}}
 ###
 # Check: list comments for offer and ensure the comment appears
 GET {{baseUrl}}/comments/{{offerId}} HTTP/1.1
+
+###
+# Upload user avatar
+POST http://localhost:4000/users/{{userId}}/avatar
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="avatar"; filename="avatar.jpg"
+Content-Type: image/jpeg
+
+< ./mocks/avatar.jpg
+--WebAppBoundary--
