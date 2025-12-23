@@ -1,4 +1,4 @@
-type ParsedCommand = Record<string, string[]>
+type ParsedCommand = Record<string, string[]>;
 
 export class CommandParser {
   static parse(cliArguments: string[]): ParsedCommand {
@@ -12,6 +12,10 @@ export class CommandParser {
       } else if (currentCommand && argument) {
         parsedCommand[currentCommand].push(argument);
       }
+    }
+
+    if (Object.keys(parsedCommand).length === 0) {
+      parsedCommand['--help'] = [];
     }
 
     return parsedCommand;

@@ -9,6 +9,8 @@ import { ConsoleLogger, Logger } from '../../shared/libs/logger/index.js';
 import { DefaultUserService, UserModel } from '../../shared/modules/user/index.js';
 import { DEFAULT_DB_PORT, DEFAULT_USER_PASSWORD } from './command.const.js';
 import { Offer } from '../../shared/types/index.js';
+import { CommentModel } from '../../shared/modules/comment/index.js';
+import { DefaultCommentService } from '../../shared/modules/comment/default-comment.service.js';
 
 export class ImportCommand implements Command {
   private userService: UserService;
@@ -22,7 +24,10 @@ export class ImportCommand implements Command {
     this.onCompleteImport = this.onCompleteImport.bind(this);
 
     this.logger = new ConsoleLogger();
-    this.offerService = new DefaultOfferService(this.logger, OfferModel);
+
+    const commentService = new DefaultCommentService(CommentModel);
+    this.offerService = new DefaultOfferService(this.logger, OfferModel, commentService);
+
     this.userService = new DefaultUserService(this.logger, UserModel);
     this.databaseClient = new MongoDatabaseClient(this.logger);
   }
@@ -51,15 +56,13 @@ export class ImportCommand implements Command {
       previewImage: offer.previewImage,
       images: offer.images,
       isPremium: offer.isPremium,
-      isFavorite: offer.isFavorite,
       type: offer.type,
       rating: offer.rating,
       roomsCnt: offer.roomsCnt,
       peopleCnt: offer.peopleCnt,
       price: offer.price,
       amenities: offer.amenities,
-      author: user.id,
-      commentsCnt: offer.commentsCnt,
+      authorId: user.id,
       latitude: offer.latitude,
       longitude: offer.longitude,
     });

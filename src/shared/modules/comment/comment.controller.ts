@@ -46,8 +46,8 @@ export default class CommentController extends BaseController {
       middlewares: [
         new PrivateRouteMiddleware(),
         new ValidateObjectIdMiddleware('offerId'),
-        new InjectAuthorIdMiddleware(),
         new ValidateDtoMiddleware(CreateCommentDto),
+        new InjectAuthorIdMiddleware(),
         new DocumentExistsMiddleware(this.offerService, 'offerId', 'Offer'),
       ],
     });

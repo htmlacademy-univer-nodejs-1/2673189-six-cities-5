@@ -18,6 +18,8 @@ export class DefaultCommentService implements CommentService {
   public async findByOfferId(offerId: string): Promise<DocumentType<CommentEntity>[]> {
     return this.commentModel
       .find({ offerId })
+      .sort({ createdAt: -1 })
+      .limit(50)
       .populate('author')
       .exec();
   }
