@@ -6,6 +6,12 @@ import { HttpError } from '../errors/index.js';
 
 type ClassConstructor<T> = { new (...args: unknown[]): T };
 
+type ValidationIssue = {
+  property: string;
+  constraints?: Record<string, string>;
+  value?: unknown;
+};
+
 export class ValidateDtoMiddleware<T extends object> implements Middleware {
   constructor(
     private readonly dtoClass: ClassConstructor<T>
@@ -21,14 +27,17 @@ export class ValidateDtoMiddleware<T extends object> implements Middleware {
     });
 
     if (errors.length > 0) {
-      const message = errors
-        .map((e) => e.toString())
-        .join('; ');
+      const issues: ValidationIssue[] = errors.map((e) => ({
+        property: e.property,
+        constraints: e.constraints,
+        value: e.value,
+      }));
 
       throw new HttpError(
         StatusCodes.BAD_REQUEST,
-        `Validation error: ${message}`,
-        'ValidateDtoMiddleware'
+        'Validation error',
+        'ValidateDtoMiddleware',
+        issues
       );
     }
     req.body = dtoInstance;

@@ -25,7 +25,7 @@ Content-Type: {{contentType}}
 }
 
 ###
-@token = Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5NGE5OTJjZGY5NTM5NTZhM2IzNzdlOCIsImVtYWlsIjoiand0X3VzZXJAdGVzdC5ydSIsIm5hbWUiOiJKV1QgVXNlciIsImlhdCI6MTc2NjQ5OTQ5MCwiZXhwIjoxNzY2NjcyMjkwfQ.QjU105mjuXssKyVN6FL8cmgkLnclUE1QTV2rY3JDQPs
+@token = Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5NGFjMDFlNTM2YmNkNzk5OTkzYjA2NiIsImVtYWlsIjoiand0X3VzZXJAdGVzdC5ydSIsIm5hbWUiOiJKV1QgVXNlciIsImlhdCI6MTc2NjUwNjUzMiwiZXhwIjoxNzY2Njc5MzMyfQ.4UMK-pkBW5BDiFjQfZE2QzsXrCvqIKwO1wbQNEzX8Qg
 
 # Favorites without token
 GET {{baseUrl}}/offers/favorites HTTP/1.1
@@ -34,6 +34,7 @@ GET {{baseUrl}}/offers/favorites HTTP/1.1
 # Logout without token
 POST {{baseUrl}}/users/logout HTTP/1.1
 
+###
 # Favorites with token
 GET {{baseUrl}}/offers/favorites HTTP/1.1
 Authorization: {{token}}
@@ -62,8 +63,7 @@ Content-Type: {{contentType}}
 
 {
   "text": "Unauthorized comment should fail",
-  "rating": 3,
-  "offerId": "{{offerId}}"
+  "rating": 3
 }
 
 ###
@@ -74,8 +74,7 @@ Content-Type: {{contentType}}
 
 {
   "text": "Nice place, would stay again (JWT).",
-  "rating": 5,
-  "offerId": "{{offerId}}"
+  "rating": 5
 }
 
 ###

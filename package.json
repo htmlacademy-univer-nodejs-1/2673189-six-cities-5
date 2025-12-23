@@ -16,6 +16,7 @@
     "compile": "tsc -p tsconfig.json",
     "clean": "rimraf dist",
     "ts": "ts-node",
+    "cli": "npm run build && node ./dist/main.cli.js",
     "generate": "npm run build && node ./dist/main.cli.js --generate 10 ./mocks/generated-offers.tsv http://localhost:3123/api",
     "import:db": "node ./dist/main.cli.js --import ./mocks/generated-offers.tsv admin admin 127.0.0.1 six-cities secret_salt",
     "mock:server": "json-server ./mocks/mock-server-data.json --port 3123"
@@ -23,6 +24,7 @@
   "devDependencies": {
     "@types/convict": "6.1.6",
     "@types/convict-format-with-validator": "6.0.5",
+    "@types/cors": "^2.8.19",
     "@types/express": "^5.0.5",
     "@types/mime-types": "^3.0.1",
     "@types/multer": "^2.0.0",
@@ -48,6 +50,7 @@
     "class-validator": "^0.14.3",
     "convict": "6.2.4",
     "convict-format-with-validator": "6.2.0",
+    "cors": "^2.8.5",
     "dayjs": "1.11.18",
     "dotenv": "17.2.3",
     "express": "^5.1.0",

@@ -17,9 +17,15 @@ export class AppExceptionFilter implements ExceptionFilter {
 
   private handleHttpError(error: HttpError, _req: Request, res: Response, _next: NextFunction) {
     this.logger.error(`[${error.detail}]: ${error.httpStatusCode} — ${error.message}`, error);
+
+    const base = createErrorObj(error.message) as Record<string, unknown>;
+    if (error.errors) {
+      base.errors = error.errors;
+    }
+
     res
       .status(error.httpStatusCode)
-      .json(createErrorObj(error.message));
+      .json(base);
   }
 
   private handleOtherError(error: Error, _req: Request, res: Response, _next: NextFunction) {

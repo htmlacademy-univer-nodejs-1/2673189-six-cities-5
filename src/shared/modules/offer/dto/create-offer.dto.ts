@@ -1,6 +1,7 @@
-import { ArrayMaxSize, ArrayMinSize, IsArray, IsBoolean, IsInt, IsLatitude,
-  IsLongitude, IsMongoId, IsNumber, IsOptional, IsString, Max, MaxLength, Min, MinLength} from 'class-validator';
+import { ArrayMaxSize, ArrayMinSize, IsArray, IsBoolean, IsEnum, IsInt, IsLatitude, IsLongitude, IsMongoId,
+  IsNumber, IsString, Max, MaxLength, Min, MinLength } from 'class-validator';
 import { Amenities, City, HousingType } from '../../../types/index.js';
+import { AMENITIES_VALUES, CITY_VALUES, HOUSING_VALUES } from '../../../const/index.js';
 
 export class CreateOfferDto {
   @IsString()
@@ -13,7 +14,7 @@ export class CreateOfferDto {
   @MaxLength(1024)
   public description: string;
 
-  @IsString()
+  @IsEnum(CITY_VALUES)
   public city: City;
 
   @IsString()
@@ -25,15 +26,10 @@ export class CreateOfferDto {
   @IsString({ each: true })
   public images: string[];
 
-  @IsOptional()
   @IsBoolean()
-  public isPremium?: boolean;
+  public isPremium: boolean;
 
-  @IsOptional()
-  @IsBoolean()
-  public isFavorite?: boolean;
-
-  @IsString()
+  @IsEnum(HOUSING_VALUES)
   public type: HousingType;
 
   @IsInt()
@@ -53,16 +49,13 @@ export class CreateOfferDto {
 
   @IsArray()
   @ArrayMinSize(1)
-  @ArrayMaxSize(20)
-  @IsString({ each: true })
+  @IsEnum(AMENITIES_VALUES, { each: true })
   public amenities: Amenities[];
 
-  @IsMongoId()
-  public author: string;
-
-  @IsInt()
-  @Min(0)
-  public commentsCnt: number;
+  @IsNumber({ maxDecimalPlaces: 1 })
+  @Min(1)
+  @Max(5)
+  public rating: number;
 
   @IsNumber()
   @IsLatitude()
@@ -72,8 +65,6 @@ export class CreateOfferDto {
   @IsLongitude()
   public longitude: number;
 
-  @IsNumber()
-  @Min(0)
-  @Max(5)
-  public rating: number;
+  @IsMongoId()
+  public authorId: string;
 }

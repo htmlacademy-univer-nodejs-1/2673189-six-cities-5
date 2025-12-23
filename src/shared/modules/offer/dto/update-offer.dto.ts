@@ -1,5 +1,7 @@
-import { ArrayMaxSize, ArrayMinSize, IsArray, IsBoolean, IsInt, IsOptional, IsString, Max, MaxLength, Min, MinLength} from 'class-validator';
-import { Amenities, HousingType } from '../../../types/index.js';
+import { ArrayMaxSize, ArrayMinSize, IsArray, IsBoolean, IsEnum, IsInt, IsLatitude, IsLongitude,
+  IsNumber, IsOptional, IsString, Max, MaxLength, Min, MinLength } from 'class-validator';
+import { Amenities, HousingType, City } from '../../../types/index.js';
+import { AMENITIES_VALUES, CITY_VALUES, HOUSING_VALUES } from '../../../const/index.js';
 
 export class UpdateOfferDto {
   @IsOptional()
@@ -13,6 +15,10 @@ export class UpdateOfferDto {
   @MinLength(20)
   @MaxLength(1024)
   public description?: string;
+
+  @IsOptional()
+  @IsEnum(CITY_VALUES)
+  public city?: City;
 
   @IsOptional()
   @IsString()
@@ -30,11 +36,7 @@ export class UpdateOfferDto {
   public isPremium?: boolean;
 
   @IsOptional()
-  @IsBoolean()
-  public isFavorite?: boolean;
-
-  @IsOptional()
-  @IsString()
+  @IsEnum(HOUSING_VALUES)
   public type?: HousingType;
 
   @IsOptional()
@@ -58,6 +60,22 @@ export class UpdateOfferDto {
   @IsOptional()
   @IsArray()
   @ArrayMinSize(1)
-  @IsString({ each: true })
+  @IsEnum(AMENITIES_VALUES, { each: true })
   public amenities?: Amenities[];
+
+  @IsOptional()
+  @IsNumber({ maxDecimalPlaces: 1 })
+  @Min(1)
+  @Max(5)
+  public rating?: number;
+
+  @IsOptional()
+  @IsNumber()
+  @IsLatitude()
+  public latitude?: number;
+
+  @IsOptional()
+  @IsNumber()
+  @IsLongitude()
+  public longitude?: number;
 }

@@ -1,5 +1,6 @@
-import { Expose, Transform } from 'class-transformer';
+import { Expose, Transform, Type } from 'class-transformer';
 import { Types } from 'mongoose';
+import { UserRdo } from '../../user/rdo/user.rdo.js';
 
 export class CommentRdo {
   @Expose({ name: '_id' })
@@ -17,8 +18,8 @@ export class CommentRdo {
   public offerId: string;
 
   @Expose()
-  @Transform(({ obj }) => obj.userId?._id?.toString() ?? obj.userId?.toString())
-  public userId: string;
+  @Type(() => UserRdo)
+  public author: UserRdo;
 
   @Expose()
   public createdAt: Date;

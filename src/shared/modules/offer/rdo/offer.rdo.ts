@@ -13,7 +13,7 @@ export class OfferRdo {
   public description: string;
 
   @Expose()
-  public publicationDate: Date;
+  public postDate: Date;
 
   @Expose()
   public city: City;
@@ -37,19 +37,19 @@ export class OfferRdo {
   public type: HousingType;
 
   @Expose()
-  public bedrooms: number;
+  public roomsCnt: number;
 
   @Expose()
-  public maxGuests: number;
+  public peopleCnt: number;
 
   @Expose()
   public price: number;
 
   @Expose()
-  public amenities: Amenities;
+  public amenities: Amenities[];
 
   @Expose()
-  public commentCount: number;
+  public commentsCnt: number;
 
   @Expose()
   public latitude: number;
@@ -57,7 +57,7 @@ export class OfferRdo {
   @Expose()
   public longitude: number;
 
-  @Expose({ name: 'userId'})
+  @Expose()
   @Type(() => UserRdo)
   public author: UserRdo;
 }

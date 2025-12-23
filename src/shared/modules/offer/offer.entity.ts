@@ -14,11 +14,11 @@ export class OfferEntity extends defaultClasses.TimeStamps {
   @prop({ trim: true, required: true, type: () => String })
   public title!: string;
 
-  @prop({ trim: true, type: () => String })
+  @prop({ trim: true, required: true, type: () => String })
   public description!: string;
 
   @prop({ required: true, default: Date.now, type: () => Date })
-  public postDate!: string;
+  public postDate!: Date;
 
   @prop({ required: true, type: () => String })
   public city: City;
@@ -29,7 +29,7 @@ export class OfferEntity extends defaultClasses.TimeStamps {
   @prop({ required: true, type: () => [String] })
   public images: string[];
 
-  @prop({ default: false, type: () => Boolean })
+  @prop({ required: true, default: false, type: () => Boolean })
   public isPremium: boolean;
 
   @prop({
@@ -38,12 +38,10 @@ export class OfferEntity extends defaultClasses.TimeStamps {
   })
   public favouritedBy: Ref<UserEntity>[];
 
-  @prop({ default: 0, type: () => Number })
+  @prop({ required: true, default: 1, type: () => Number })
   public rating: number;
 
-  @prop({
-    type: () => String,
-  })
+  @prop({ required: true, type: () => String })
   public type!: HousingType;
 
   @prop({ required: true, type: () => Number })
@@ -55,7 +53,7 @@ export class OfferEntity extends defaultClasses.TimeStamps {
   @prop({ required: true, type: () => Number })
   public price!: number;
 
-  @prop({ default: [], type: () => [String] })
+  @prop({ required: true, default: [], type: () => [String] })
   public amenities: Amenities[];
 
   @prop({
@@ -64,7 +62,7 @@ export class OfferEntity extends defaultClasses.TimeStamps {
   })
   public author!: Ref<UserEntity>;
 
-  @prop({ default: 0, type: () => Number })
+  @prop({ required: true, default: 0, type: () => Number })
   public commentsCnt!: number;
 
   @prop({ required: true, type: () => Number })

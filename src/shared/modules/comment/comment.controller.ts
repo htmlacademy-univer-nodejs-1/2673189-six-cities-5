@@ -10,10 +10,10 @@ import { CommentRdo } from './rdo/comment.rdo.js';
 import { OfferService } from '../offer/offer-service.interface.js';
 import { RequestWithUser } from '../../types/express-request.type.js';
 
-class InjectUserIdMiddleware implements Middleware {
+class InjectAuthorIdMiddleware implements Middleware {
   public execute(req: Request, _res: Response, next: NextFunction): void {
-    const userId = (req as RequestWithUser).user?.id;
-    req.body = { ...(req.body as Record<string, unknown>), userId };
+    const author = (req as RequestWithUser).user?.id;
+    req.body = { ...(req.body as Record<string, unknown>), author };
     next();
   }
 }
@@ -33,7 +33,8 @@ export default class CommentController extends BaseController {
       path: '/:offerId',
       method: HttpMethod.Get,
       handler: this.index,
-      middlewares: [new ValidateObjectIdMiddleware('offerId'),
+      middlewares: [
+        new ValidateObjectIdMiddleware('offerId'),
         new DocumentExistsMiddleware(this.offerService, 'offerId', 'Offer'),
       ],
     });
@@ -45,8 +46,8 @@ export default class CommentController extends BaseController {
       middlewares: [
         new PrivateRouteMiddleware(),
         new ValidateObjectIdMiddleware('offerId'),
-        new InjectUserIdMiddleware(),
         new ValidateDtoMiddleware(CreateCommentDto),
+        new InjectAuthorIdMiddleware(),
         new DocumentExistsMiddleware(this.offerService, 'offerId', 'Offer'),
       ],
     });
@@ -60,13 +61,11 @@ export default class CommentController extends BaseController {
 
   public async create(req: Request, res: Response): Promise<void> {
     const { offerId } = req.params;
-    const body = req.body as CreateCommentDto;
-    const userId = (req as RequestWithUser).user?.id as string;
+    const body = req.body as CreateCommentDto & { author: string };
 
     const created = await this.commentService.create({
       ...body,
       offerId,
-      userId,
     });
 
     this.created(res, fillDTO(CommentRdo, created));

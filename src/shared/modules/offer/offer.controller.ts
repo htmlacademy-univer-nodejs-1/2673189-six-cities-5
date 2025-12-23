@@ -1,6 +1,7 @@
 import { inject, injectable } from 'inversify';
-import { Request, Response } from 'express';
-import { BaseController, HttpMethod, ValidateDtoMiddleware, ValidateObjectIdMiddleware, DocumentExistsMiddleware, PrivateRouteMiddleware } from '../../libs/rest/index.js';
+import { Request, Response, NextFunction } from 'express';
+import { StatusCodes } from 'http-status-codes';
+import { BaseController, HttpMethod, ValidateDtoMiddleware, ValidateObjectIdMiddleware, DocumentExistsMiddleware, PrivateRouteMiddleware, Middleware } from '../../libs/rest/index.js';
 import { Logger } from '../../libs/logger/index.js';
 import { City, Component } from '../../types/index.js';
 import { OfferService } from './offer-service.interface.js';
@@ -10,6 +11,14 @@ import { CreateOfferDto } from './dto/create-offer.dto.js';
 import { UpdateOfferDto } from './dto/update-offer.dto.js';
 import { RequestWithUser } from '../../types/express-request.type.js';
 
+class InjectAuthorIdMiddleware implements Middleware {
+  public execute(req: Request, _res: Response, next: NextFunction): void {
+    const authorId = (req as RequestWithUser).user?.id;
+    req.body = { ...(req.body as Record<string, unknown>), authorId };
+    next();
+  }
+}
+
 @injectable()
 export default class OfferController extends BaseController {
   constructor(
@@ -18,10 +27,10 @@ export default class OfferController extends BaseController {
   ) {
     super(logger);
 
-    this.logger.info('Register routes for OfferController…');
+    this.logger.info('Register routes for OfferController');
 
     this.addRoute({ path: '/', method: HttpMethod.Get, handler: this.index });
-    this.addRoute({ path: '/', method: HttpMethod.Post, handler: this.create, middlewares: [new ValidateDtoMiddleware(CreateOfferDto)] });
+    this.addRoute({ path: '/', method: HttpMethod.Post, handler: this.create, middlewares: [new PrivateRouteMiddleware(), new InjectAuthorIdMiddleware(), new ValidateDtoMiddleware(CreateOfferDto)] });
     this.addRoute({ path: '/premium/:city', method: HttpMethod.Get, handler: this.getPremium });
     this.addRoute({ path: '/favorites', method: HttpMethod.Get, handler: this.getFavorites, middlewares: [new PrivateRouteMiddleware()] });
 
@@ -33,6 +42,7 @@ export default class OfferController extends BaseController {
 
     this.addRoute({ path: '/:offerId', method: HttpMethod.Patch, handler: this.update,
       middlewares: [
+        new PrivateRouteMiddleware(),
         new ValidateObjectIdMiddleware('offerId'),
         new ValidateDtoMiddleware(UpdateOfferDto),
         new DocumentExistsMiddleware(this.offerService, 'offerId', 'Offer')]
@@ -40,6 +50,7 @@ export default class OfferController extends BaseController {
 
     this.addRoute({ path: '/:offerId', method: HttpMethod.Delete, handler: this.delete,
       middlewares: [
+        new PrivateRouteMiddleware(),
         new ValidateObjectIdMiddleware('offerId'),
         new DocumentExistsMiddleware(this.offerService, 'offerId', 'Offer')]
     });
@@ -63,7 +74,8 @@ export default class OfferController extends BaseController {
 
   public async index(req: Request, res: Response) {
     const currentUserId = (req as RequestWithUser).user?.id;
-    const offers = await this.offerService.find(currentUserId);
+    const limit = req.query.limit ? Number.parseInt(String(req.query.limit), 10) : undefined;
+    const offers = await this.offerService.find(currentUserId, limit);
     this.ok(res, fillDTO(OfferRdo, offers));
   }
 
@@ -75,20 +87,41 @@ export default class OfferController extends BaseController {
 
   public async show(req: Request, res: Response): Promise<void> {
     const { offerId } = req.params;
-    const offer = await this.offerService.findById(offerId);
+    const currentUserId = (req as RequestWithUser).user?.id;
+    const offer = await this.offerService.findByIdWithUser(offerId, currentUserId);
     this.ok(res, fillDTO(OfferRdo, offer));
   }
 
   public async update(req: Request, res: Response): Promise<void> {
     const { offerId } = req.params;
     const body = req.body as UpdateOfferDto;
+
+    const userId = (req as RequestWithUser).user?.id as string;
+    const isOwner = await this.offerService.isOwner(offerId, userId);
+    if (!isOwner) {
+      throw {
+        status: StatusCodes.FORBIDDEN,
+        message: 'Forbidden',
+      };
+    }
+
     const updatedOffer = await this.offerService.updateById(offerId, body);
     this.ok(res, fillDTO(OfferRdo, updatedOffer));
   }
 
   public async delete(req: Request, res: Response): Promise<void> {
     const { offerId } = req.params;
-    await this.offerService.deleteById(offerId);
+
+    const userId = (req as RequestWithUser).user?.id as string;
+    const isOwner = await this.offerService.isOwner(offerId, userId);
+    if (!isOwner) {
+      throw {
+        status: StatusCodes.FORBIDDEN,
+        message: 'Forbidden',
+      };
+    }
+
+    await this.offerService.deleteById(offerId, true);
     this.noContent(res, {});
   }
 
