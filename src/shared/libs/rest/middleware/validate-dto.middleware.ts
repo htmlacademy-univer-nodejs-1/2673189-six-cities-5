@@ -31,6 +31,7 @@ export class ValidateDtoMiddleware<T extends object> implements Middleware {
         'ValidateDtoMiddleware'
       );
     }
+    req.body = dtoInstance;
 
     next();
   }

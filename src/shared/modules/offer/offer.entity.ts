@@ -29,13 +29,16 @@ export class OfferEntity extends defaultClasses.TimeStamps {
   @prop({ required: true, type: () => [String] })
   public images: string[];
 
-  @prop({default: false, type: () => Boolean})
+  @prop({ default: false, type: () => Boolean })
   public isPremium: boolean;
 
-  @prop({ref: UserEntity, required: true, default: []})
-  public isFavorite: boolean;
+  @prop({
+    ref: UserEntity,
+    default: [],
+  })
+  public favouritedBy: Ref<UserEntity>[];
 
-  @prop({default: 0, type: () => Number})
+  @prop({ default: 0, type: () => Number })
   public rating: number;
 
   @prop({
@@ -43,13 +46,13 @@ export class OfferEntity extends defaultClasses.TimeStamps {
   })
   public type!: HousingType;
 
-  @prop({required: true, type: () => Number})
+  @prop({ required: true, type: () => Number })
   public roomsCnt: number;
 
-  @prop({required: true, type: () => Number})
+  @prop({ required: true, type: () => Number })
   public peopleCnt: number;
 
-  @prop({required: true, type: () => Number})
+  @prop({ required: true, type: () => Number })
   public price!: number;
 
   @prop({ default: [], type: () => [String] })
@@ -61,13 +64,13 @@ export class OfferEntity extends defaultClasses.TimeStamps {
   })
   public author!: Ref<UserEntity>;
 
-  @prop({default: 0, type: () => Number})
+  @prop({ default: 0, type: () => Number })
   public commentsCnt!: number;
 
-  @prop({required: true, type: () => Number})
+  @prop({ required: true, type: () => Number })
   public latitude: number;
 
-  @prop({required: true, type: () => Number})
+  @prop({ required: true, type: () => Number })
   public longitude: number;
 }
 
