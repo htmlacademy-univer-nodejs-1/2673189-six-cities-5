@@ -1,6 +1,6 @@
 import { inject, injectable } from 'inversify';
-import { Request, Response } from 'express';
-import { BaseController, HttpMethod, ValidateDtoMiddleware, ValidateObjectIdMiddleware, DocumentExistsMiddleware, PrivateRouteMiddleware } from '../../libs/rest/index.js';
+import { Request, Response, NextFunction } from 'express';
+import { BaseController, HttpMethod, ValidateDtoMiddleware, ValidateObjectIdMiddleware, DocumentExistsMiddleware, PrivateRouteMiddleware, Middleware } from '../../libs/rest/index.js';
 import { Logger } from '../../libs/logger/index.js';
 import { City, Component } from '../../types/index.js';
 import { OfferService } from './offer-service.interface.js';
@@ -9,6 +9,14 @@ import { OfferRdo } from './rdo/offer.rdo.js';
 import { CreateOfferDto } from './dto/create-offer.dto.js';
 import { UpdateOfferDto } from './dto/update-offer.dto.js';
 import { RequestWithUser } from '../../types/express-request.type.js';
+
+class InjectAuthorIdMiddleware implements Middleware {
+  public execute(req: Request, _res: Response, next: NextFunction): void {
+    const authorId = (req as RequestWithUser).user?.id;
+    req.body = { ...(req.body as Record<string, unknown>), authorId };
+    next();
+  }
+}
 
 @injectable()
 export default class OfferController extends BaseController {
@@ -21,7 +29,7 @@ export default class OfferController extends BaseController {
     this.logger.info('Register routes for OfferController…');
 
     this.addRoute({ path: '/', method: HttpMethod.Get, handler: this.index });
-    this.addRoute({ path: '/', method: HttpMethod.Post, handler: this.create, middlewares: [new ValidateDtoMiddleware(CreateOfferDto)] });
+    this.addRoute({ path: '/', method: HttpMethod.Post, handler: this.create, middlewares: [new PrivateRouteMiddleware(), new InjectAuthorIdMiddleware(), new ValidateDtoMiddleware(CreateOfferDto)] });
     this.addRoute({ path: '/premium/:city', method: HttpMethod.Get, handler: this.getPremium });
     this.addRoute({ path: '/favorites', method: HttpMethod.Get, handler: this.getFavorites, middlewares: [new PrivateRouteMiddleware()] });
 

@@ -13,7 +13,7 @@ export class CreateUserDto {
 
   @IsOptional()
   @IsString()
-  public avatarUrl?: string;
+  public avatarPicPath?: string;
 
   @IsString()
   @MinLength(6)

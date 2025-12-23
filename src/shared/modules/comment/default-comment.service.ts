@@ -10,20 +10,21 @@ export class DefaultCommentService implements CommentService {
   ) {
   }
 
-  public async create(dto: CreateCommentDto): Promise<DocumentType<CommentEntity>> {
+  public async create(dto: CreateCommentDto & { offerId: string; author: string }): Promise<DocumentType<CommentEntity>> {
     const comment = await this.commentModel.create(dto);
-    return comment.populate('userId');
+    return comment.populate('author');
   }
 
   public async findByOfferId(offerId: string): Promise<DocumentType<CommentEntity>[]> {
     return this.commentModel
-      .find({offerId})
-      .populate('userId');
+      .find({ offerId })
+      .populate('author')
+      .exec();
   }
 
   public async deleteByOfferId(offerId: string): Promise<number> {
     const result = await this.commentModel
-      .deleteMany({offerId})
+      .deleteMany({ offerId })
       .exec();
 
     return result.deletedCount;

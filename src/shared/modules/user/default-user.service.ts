@@ -44,4 +44,8 @@ export class DefaultUserService implements UserService {
       .findByIdAndUpdate(userId, { avatarPicPath }, { new: true })
       .exec();
   }
+
+  public async findById(userId: string): Promise<DocumentType<UserEntity> | null> {
+    return this.userModel.findById(userId).exec();
+  }
 }

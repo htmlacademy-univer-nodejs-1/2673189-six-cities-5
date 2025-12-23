@@ -26,6 +26,7 @@ export class UserController extends BaseController {
     this.addRoute({ path: '/register', method: HttpMethod.Post, handler: this.create, middlewares: [new ValidateDtoMiddleware(CreateUserDto)] });
     this.addRoute({ path: '/login', method: HttpMethod.Post, handler: this.login, middlewares: [new ValidateDtoMiddleware(LoginUserDto)] });
     this.addRoute({ path: '/logout', method: HttpMethod.Post, handler: this.logout, middlewares: [new PrivateRouteMiddleware()] });
+    this.addRoute({ path: '/login', method: HttpMethod.Get, handler: this.checkAuth, middlewares: [new PrivateRouteMiddleware()] });
 
     this.addRoute({
       path: '/avatar',
@@ -87,6 +88,29 @@ export class UserController extends BaseController {
 
   public async logout(_req: Request, res: Response): Promise<void> {
     this.noContent(res, { message: 'Logged out successfully' });
+  }
+
+  public async checkAuth(req: Request, res: Response): Promise<void> {
+    const currentUserId = (req as RequestWithUser).user?.id;
+
+    if (!currentUserId) {
+      throw new HttpError(
+        StatusCodes.UNAUTHORIZED,
+        'Unauthorized',
+        'UserController'
+      );
+    }
+
+    const user = await this.userService.findById(currentUserId);
+    if (!user) {
+      throw new HttpError(
+        StatusCodes.UNAUTHORIZED,
+        'Unauthorized',
+        'UserController'
+      );
+    }
+
+    this.ok(res, fillDTO(UserRdo, user));
   }
 
   public async uploadAvatar(req: Request, res: Response): Promise<void> {

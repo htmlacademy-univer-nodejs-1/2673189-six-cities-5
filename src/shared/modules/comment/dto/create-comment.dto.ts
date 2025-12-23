@@ -1,4 +1,4 @@
-import { IsInt, IsMongoId, IsString, Max, MaxLength, Min, MinLength } from 'class-validator';
+import { IsInt, IsString, Max, MaxLength, Min, MinLength } from 'class-validator';
 
 export class CreateCommentDto {
   @IsString()
@@ -10,10 +10,4 @@ export class CreateCommentDto {
   @Min(1)
   @Max(5)
   public rating: number;
-
-  @IsMongoId()
-  public offerId: string;
-
-  @IsMongoId()
-  public userId: string;
 }
