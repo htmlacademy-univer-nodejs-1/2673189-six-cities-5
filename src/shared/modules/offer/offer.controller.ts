@@ -1,6 +1,6 @@
 import { inject, injectable } from 'inversify';
 import { Request, Response } from 'express';
-import { BaseController, HttpMethod, ValidateDtoMiddleware, ValidateObjectIdMiddleware, DocumentExistsMiddleware } from '../../libs/rest/index.js';
+import { BaseController, HttpMethod, ValidateDtoMiddleware, ValidateObjectIdMiddleware, DocumentExistsMiddleware, PrivateRouteMiddleware } from '../../libs/rest/index.js';
 import { Logger } from '../../libs/logger/index.js';
 import { City, Component } from '../../types/index.js';
 import { OfferService } from './offer-service.interface.js';
@@ -8,6 +8,7 @@ import { fillDTO } from '../../helpers/index.js';
 import { OfferRdo } from './rdo/offer.rdo.js';
 import { CreateOfferDto } from './dto/create-offer.dto.js';
 import { UpdateOfferDto } from './dto/update-offer.dto.js';
+import { RequestWithUser } from '../../types/express-request.type.js';
 
 @injectable()
 export default class OfferController extends BaseController {
@@ -22,7 +23,7 @@ export default class OfferController extends BaseController {
     this.addRoute({ path: '/', method: HttpMethod.Get, handler: this.index });
     this.addRoute({ path: '/', method: HttpMethod.Post, handler: this.create, middlewares: [new ValidateDtoMiddleware(CreateOfferDto)] });
     this.addRoute({ path: '/premium/:city', method: HttpMethod.Get, handler: this.getPremium });
-    this.addRoute({ path: '/favorites', method: HttpMethod.Get, handler: this.getFavorites });
+    this.addRoute({ path: '/favorites', method: HttpMethod.Get, handler: this.getFavorites, middlewares: [new PrivateRouteMiddleware()] });
 
     this.addRoute({ path: '/:offerId', method: HttpMethod.Get, handler: this.show,
       middlewares: [
@@ -42,10 +43,27 @@ export default class OfferController extends BaseController {
         new ValidateObjectIdMiddleware('offerId'),
         new DocumentExistsMiddleware(this.offerService, 'offerId', 'Offer')]
     });
+
+    this.addRoute({ path: '/favorites/:offerId', method: HttpMethod.Post, handler: this.addToFavorites,
+      middlewares: [
+        new PrivateRouteMiddleware(),
+        new ValidateObjectIdMiddleware('offerId'),
+        new DocumentExistsMiddleware(this.offerService, 'offerId', 'Offer'),
+      ]
+    });
+
+    this.addRoute({ path: '/favorites/:offerId', method: HttpMethod.Delete, handler: this.deleteFromFavorites,
+      middlewares: [
+        new PrivateRouteMiddleware(),
+        new ValidateObjectIdMiddleware('offerId'),
+        new DocumentExistsMiddleware(this.offerService, 'offerId', 'Offer'),
+      ]
+    });
   }
 
-  public async index(_req: Request, res: Response) {
-    const offers = await this.offerService.find();
+  public async index(req: Request, res: Response) {
+    const currentUserId = (req as RequestWithUser).user?.id;
+    const offers = await this.offerService.find(currentUserId);
     this.ok(res, fillDTO(OfferRdo, offers));
   }
 
@@ -80,8 +98,23 @@ export default class OfferController extends BaseController {
     this.ok(res, fillDTO(OfferRdo, offers));
   }
 
-  public async getFavorites(_req: Request, res: Response): Promise<void> {
-    const offers = await this.offerService.findFavourites(_req.headers.authorization ?? '');
+  public async getFavorites(req: Request, res: Response): Promise<void> {
+    const userId = (req as RequestWithUser).user?.id as string;
+    const offers = await this.offerService.findFavourites(userId);
     this.ok(res, fillDTO(OfferRdo, offers));
+  }
+
+  public async addToFavorites(req: Request, res: Response): Promise<void> {
+    const { offerId } = req.params;
+    const userId = (req as RequestWithUser).user?.id as string;
+    const updated = await this.offerService.addToFavourites(offerId, userId);
+    this.ok(res, fillDTO(OfferRdo, updated));
+  }
+
+  public async deleteFromFavorites(req: Request, res: Response): Promise<void> {
+    const { offerId } = req.params;
+    const userId = (req as RequestWithUser).user?.id as string;
+    const updated = await this.offerService.deleteFromFavourites(offerId, userId);
+    this.ok(res, fillDTO(OfferRdo, updated));
   }
 }

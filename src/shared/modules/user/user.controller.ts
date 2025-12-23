@@ -1,7 +1,7 @@
 import { inject, injectable } from 'inversify';
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
-import { BaseController, HttpError, HttpMethod, ValidateDtoMiddleware, ValidateObjectIdMiddleware, DocumentExistsMiddleware, UploadFileMiddleware } from '../../libs/rest/index.js';
+import { BaseController, HttpError, HttpMethod, ValidateDtoMiddleware, UploadFileMiddleware, PrivateRouteMiddleware } from '../../libs/rest/index.js';
 import { Logger } from '../../libs/logger/index.js';
 import { Component } from '../../types/index.js';
 import { UserService } from './user-service.interface.js';
@@ -9,6 +9,9 @@ import { Config, RestSchema } from '../../libs/config/index.js';
 import { fillDTO } from '../../helpers/index.js';
 import { UserRdo } from './rdo/user.rdo.js';
 import { CreateUserDto } from './dto/create-user.dto.js';
+import { LoginUserDto } from './dto/login-user.dto.js';
+import { JwtService } from '../../libs/rest/auth/jwt.service.js';
+import { RequestWithUser } from '../../types/express-request.type.js';
 
 @injectable()
 export class UserController extends BaseController {
@@ -21,16 +24,15 @@ export class UserController extends BaseController {
     this.logger.info('Register routes for UserController…');
 
     this.addRoute({ path: '/register', method: HttpMethod.Post, handler: this.create, middlewares: [new ValidateDtoMiddleware(CreateUserDto)] });
-    this.addRoute({ path: '/login', method: HttpMethod.Post, handler: this.login });
-    this.addRoute({ path: '/logout', method: HttpMethod.Post, handler: this.logout });
+    this.addRoute({ path: '/login', method: HttpMethod.Post, handler: this.login, middlewares: [new ValidateDtoMiddleware(LoginUserDto)] });
+    this.addRoute({ path: '/logout', method: HttpMethod.Post, handler: this.logout, middlewares: [new PrivateRouteMiddleware()] });
 
     this.addRoute({
-      path: '/:userId/avatar',
+      path: '/avatar',
       method: HttpMethod.Post,
       handler: this.uploadAvatar,
       middlewares: [
-        new ValidateObjectIdMiddleware('userId'),
-        new DocumentExistsMiddleware(this.userService, 'userId', 'User'),
+        new PrivateRouteMiddleware(),
         new UploadFileMiddleware(this.configService, 'avatar'),
       ],
     });
@@ -52,25 +54,35 @@ export class UserController extends BaseController {
     this.created(res, fillDTO(UserRdo, result));
   }
 
-  public async login(
-    req: Request,
-    _res: Response,
-  ): Promise<void> {
-    const existsUser = await this.userService.findByEmail(req.body.email);
+  public async login(req: Request, res: Response): Promise<void> {
+    const { email, password } = req.body as LoginUserDto;
+    const existsUser = await this.userService.findByEmail(email);
 
-    if (! existsUser) {
+    if (!existsUser) {
       throw new HttpError(
         StatusCodes.UNAUTHORIZED,
-        `User with email ${req.body.email} not found.`,
+        `User with email ${email} not found.`,
         'UserController',
       );
     }
 
-    throw new HttpError(
-      StatusCodes.NOT_IMPLEMENTED,
-      'Not implemented',
-      'UserController',
-    );
+    const isValid = existsUser.verifyPassword(password, this.configService.get('SALT'));
+    if (!isValid) {
+      throw new HttpError(
+        StatusCodes.UNAUTHORIZED,
+        'Invalid password.',
+        'UserController',
+      );
+    }
+
+    const jwtService = new JwtService(this.configService.get('JWT_SECRET'), this.configService.get('JWT_EXPIRES_IN'));
+    const token = await jwtService.sign({
+      id: existsUser.id,
+      email: existsUser.email,
+      name: existsUser.name,
+    });
+
+    this.ok(res, { token });
   }
 
   public async logout(_req: Request, res: Response): Promise<void> {
@@ -78,7 +90,15 @@ export class UserController extends BaseController {
   }
 
   public async uploadAvatar(req: Request, res: Response): Promise<void> {
-    const { userId } = req.params;
+    const currentUserId = (req as RequestWithUser).user?.id;
+
+    if (!currentUserId) {
+      throw new HttpError(
+        StatusCodes.UNAUTHORIZED,
+        'Unauthorized',
+        'UserController'
+      );
+    }
 
     const file = req.file as Express.Multer.File | undefined;
     if (!file) {
@@ -90,7 +110,7 @@ export class UserController extends BaseController {
     }
 
     const avatarPicPath = `/upload/${file.filename}`;
-    const updated = await this.userService.updateAvatar(userId, avatarPicPath);
+    const updated = await this.userService.updateAvatar(currentUserId, avatarPicPath);
 
     this.ok(res, fillDTO(UserRdo, updated));
   }

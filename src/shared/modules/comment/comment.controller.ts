@@ -1,6 +1,6 @@
 import { inject, injectable } from 'inversify';
-import { Request, Response } from 'express';
-import { BaseController, HttpMethod, ValidateDtoMiddleware, ValidateObjectIdMiddleware, DocumentExistsMiddleware } from '../../libs/rest/index.js';
+import { Request, Response, NextFunction } from 'express';
+import { BaseController, HttpMethod, ValidateDtoMiddleware, ValidateObjectIdMiddleware, DocumentExistsMiddleware, PrivateRouteMiddleware, Middleware } from '../../libs/rest/index.js';
 import { Logger } from '../../libs/logger/index.js';
 import { Component } from '../../types/index.js';
 import { fillDTO } from '../../helpers/index.js';
@@ -8,6 +8,15 @@ import { CommentService } from './comment-service.interface.js';
 import { CreateCommentDto } from './dto/create-comment.dto.js';
 import { CommentRdo } from './rdo/comment.rdo.js';
 import { OfferService } from '../offer/offer-service.interface.js';
+import { RequestWithUser } from '../../types/express-request.type.js';
+
+class InjectUserIdMiddleware implements Middleware {
+  public execute(req: Request, _res: Response, next: NextFunction): void {
+    const userId = (req as RequestWithUser).user?.id;
+    req.body = { ...(req.body as Record<string, unknown>), userId };
+    next();
+  }
+}
 
 @injectable()
 export default class CommentController extends BaseController {
@@ -33,7 +42,10 @@ export default class CommentController extends BaseController {
       path: '/:offerId',
       method: HttpMethod.Post,
       handler: this.create,
-      middlewares: [new ValidateObjectIdMiddleware('offerId'),
+      middlewares: [
+        new PrivateRouteMiddleware(),
+        new ValidateObjectIdMiddleware('offerId'),
+        new InjectUserIdMiddleware(),
         new ValidateDtoMiddleware(CreateCommentDto),
         new DocumentExistsMiddleware(this.offerService, 'offerId', 'Offer'),
       ],
@@ -49,10 +61,12 @@ export default class CommentController extends BaseController {
   public async create(req: Request, res: Response): Promise<void> {
     const { offerId } = req.params;
     const body = req.body as CreateCommentDto;
+    const userId = (req as RequestWithUser).user?.id as string;
 
     const created = await this.commentService.create({
       ...body,
       offerId,
+      userId,
     });
 
     this.created(res, fillDTO(CommentRdo, created));

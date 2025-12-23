@@ -6,7 +6,7 @@ import { City } from '../../types/city.type.js';
 export interface OfferService {
   create(createDto: CreateOfferDto): Promise<DocumentType<OfferEntity>>;
   findById(offerId: string): Promise<DocumentType<OfferEntity> | null>;
-  find(): Promise<DocumentType<OfferEntity>[]>;
+  find(currentUserId?: string): Promise<DocumentType<OfferEntity>[]>;
   deleteById(offerId: string): Promise<DocumentType<OfferEntity> | null>;
   updateById(offerId: string, dto: UpdateOfferDto): Promise<DocumentType<OfferEntity> | null>;
   commentCntByOffer(offerId: string): Promise<DocumentType<OfferEntity> | null>;

@@ -26,11 +26,26 @@ export class DefaultOfferService implements OfferService {
     return this.offerModel.findById(offerId).populate(['author']).exec();
   }
 
-  public async find(): Promise<DocumentType<OfferEntity>[]> {
-    return this.offerModel
+  public async find(currentUserId?: string): Promise<DocumentType<OfferEntity>[]> {
+    const offers = await this.offerModel
       .find()
       .populate(['author'])
       .exec();
+
+    if (!currentUserId) {
+      return offers;
+    }
+
+    return offers.map((offer) => {
+      const favouritedBy = offer.favouritedBy as unknown as Array<{ _id?: unknown } | string>;
+
+      const isFavorite = Array.isArray(favouritedBy)
+        ? favouritedBy.some((u) => String(u) === currentUserId || String((u && (u as { _id?: unknown })._id) ?? '') === currentUserId)
+        : false;
+
+      (offer as unknown as Record<string, unknown>)['isFavorite'] = isFavorite;
+      return offer;
+    });
   }
 
   public async deleteById(offerId: string): Promise<DocumentType<OfferEntity> | null> {
@@ -58,13 +73,13 @@ export class DefaultOfferService implements OfferService {
   }
 
   findFavourites(userId: string): Promise<DocumentType<OfferEntity>[]> {
-    return this.offerModel.find({favoritedBy: userId}).populate(['author']).exec();
+    return this.offerModel.find({ favouritedBy: userId }).populate(['author']).exec();
   }
 
   addToFavourites(offerId: string, userId: string): Promise<DocumentType<OfferEntity> | null> {
     return this.offerModel.findByIdAndUpdate(
       offerId,
-      { $push: { favouritedBy: userId } },
+      { $addToSet: { favouritedBy: userId } },
       { new: true }
     )
       .populate(['author'])
@@ -72,9 +87,9 @@ export class DefaultOfferService implements OfferService {
   }
 
   async deleteFromFavourites(offerId: string, userId: string): Promise<DocumentType<OfferEntity> | null> {
-    return await this.offerModel.findByIdAndUpdate(
+    return this.offerModel.findByIdAndUpdate(
       offerId,
-      { $pop: { favouritedBy: userId } },
+      { $pull: { favouritedBy: userId } },
       { new: true }
     )
       .populate(['author'])
